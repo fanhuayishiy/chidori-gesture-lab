@@ -1,0 +1,32 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+.DS_Store
+
+# Downloaded/generated assets (npm run setup:models)
+public/models/
+tests/fixtures/inference-landmarks.png
+dist.zip
+coverage/
+*.log
+
+# Credentials and local deployment state
+.wrangler/
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+*.pem
+*.key
+.vscode/
+.idea/
+
+# Local development history and test captures; publish only curated demo images
+docs/superpowers/
+docs/DEPLOYMENT.md
+docs/VERIFICATION.md
+docs/evidence/*
+!docs/evidence/long-burst-chidori-live.jpg
+!docs/evidence/long-burst-shuriken-live.jpg

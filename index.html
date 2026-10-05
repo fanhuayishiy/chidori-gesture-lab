@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#080e1b">
+  <meta name="description" content="让摄像头成为忍术现场。握拳蓄力、张手爆发，用手势控制千鸟与旋风手里剑。">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>千鸟 CHIDORI — 手势雷电实验室</title>
+</head>
+<body data-effect="chidori">
+  <main id="stage" class="stage" aria-label="全屏手势体验">
+    <video id="camera" muted playsinline aria-label="镜像摄像头画面"></video>
+    <canvas id="hand-overlay" aria-hidden="true"></canvas>
+    <canvas id="lightning" tabindex="0" aria-label="雷电互动区域，鼠标模式下按空格蓄力、松开释放"></canvas>
+    <div class="stage-vignette" aria-hidden="true"></div>
+
+    <header class="header overlay">
+      <div class="identity">
+        <span class="brand-mark" aria-hidden="true"><i data-lucide="zap"></i></span>
+        <div><h1 id="effect-title">千鸟</h1><span class="brand-tag">CHIDORI / LIVE LAB</span></div>
+      </div>
+      <div class="telemetry">
+        <div class="scene-label"><span class="status-dot blue"></span><span id="mode-label">待机演示</span><span class="scene-divider">/</span><span id="state-label">能量待命</span></div>
+        <div class="tracking-status" aria-label="手势追踪状态"><span id="tracking-badge" class="tiny-badge">STANDBY</span><span id="tracking-dot" class="status-dot"></span><span id="tracking-label">摄像头未开启</span><span id="hand-count">—</span></div>
+      </div>
+      <div class="header-actions">
+        <button id="help-button" class="icon-button" aria-label="使用说明" title="使用说明"><i data-lucide="circle-help"></i></button>
+        <button id="fullscreen-button" class="icon-button" aria-label="进入全屏" title="进入全屏"><i data-lucide="maximize"></i></button>
+      </div>
+    </header>
+
+    <div id="camera-placeholder" class="camera-placeholder overlay"><i data-lucide="scan-hand" aria-hidden="true"></i><span>开启手势，让雷电落在掌心</span></div>
+    <div class="sr-only"><span>X <b id="coord-x">0.550</b></span><span>Y <b id="coord-y">0.480</b></span></div>
+    <p id="status-message" class="status-message overlay" role="status" aria-live="polite">开启摄像头即可体验；画面仅在本机处理。</p>
+
+
+    <section class="control-dock overlay" aria-label="体验控制">
+      <button id="camera-button" class="primary-button"><i data-lucide="scan-hand"></i><span>开启手势</span><i data-lucide="arrow-up-right" class="button-arrow"></i></button>
+      <div class="effect-selector" role="group" aria-label="忍术模式">
+        <button id="effect-chidori" class="effect-button" aria-pressed="true"><span class="effect-symbol" aria-hidden="true">雷</span>千鸟</button>
+        <button id="effect-shuriken" class="effect-button" aria-pressed="false"><span class="effect-symbol" aria-hidden="true">風</span>旋风手里剑</button>
+      </div>
+      <div class="burst-meter"><span id="charge-label">能量就绪</span><span class="charge-track" aria-hidden="true"><span id="charge-fill"></span></span><span class="release-count" aria-label="释放次数">RELEASE <output id="burst-count">000</output></span></div>
+      <button id="burst-button" class="burst-button" aria-label="爆发"><i data-lucide="zap"></i><span>爆发</span><small id="burst-status">READY</small></button>
+      <div class="quick-actions">
+        <button id="mute-button" class="icon-button" aria-label="开启声音" aria-pressed="true" title="声音开关"><i data-lucide="volume-x"></i></button>
+        <button id="settings-button" class="icon-button" aria-label="设置" aria-expanded="false" aria-controls="settings-panel" title="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 7h7m4 0h5M4 17h3m4 0h9"/><circle cx="13" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
+      </div>
+    </section>
+
+    <section id="settings-panel" class="settings-panel overlay" aria-labelledby="settings-title" hidden>
+      <div class="settings-heading"><h2 id="settings-title">体验设置</h2><span>LOCAL ONLY</span></div>
+      <button id="demo-button" class="secondary-button" aria-label="鼠标体验"><i data-lucide="mouse-pointer-2"></i><span>鼠标体验</span><small>无需摄像头</small></button>
+      <div class="energy-control setting-group">
+        <div class="control-caption"><label for="energy-range">雷电范围</label><span><b id="energy-value">28</b><small>%</small></span></div>
+        <input id="energy-range" type="range" min="0" max="100" value="28" aria-label="雷电范围">
+        <div class="range-labels"><span>聚合</span><span>全域释放</span></div>
+      </div>
+      <div class="sound-control setting-group">
+        <div class="sound-heading"><span class="equalizer" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b></span><div><span>雷鸣序曲</span><small>ORIGINAL SOUNDSCAPE</small></div></div>
+        <div class="volume-row"><label for="volume-range">音量</label><input id="volume-range" type="range" min="0" max="100" value="35" aria-label="音量"><span id="volume-value">35%</span></div>
+      </div>
+      <div class="setting-group setting-toggles">
+        <label class="reduce-toggle"><input id="reduce-flash" type="checkbox" aria-label="柔和模式"><span class="switch-track" aria-hidden="true"></span><span>柔和模式</span><small>减少闪光</small></label>
+        <label class="reduce-toggle"><input id="show-landmarks" type="checkbox"><span class="switch-track" aria-hidden="true"></span><span>显示手部骨架</span></label>
+      </div>
+      <p class="privacy-note"><i data-lucide="shield-check" aria-hidden="true"></i>视频不上传、不录制，切换鼠标模式会关闭摄像头。</p>
+    </section>
+  </main>
+
+  <dialog id="help-dialog">
+    <div class="dialog-heading"><span class="eyebrow">CHIDORI / QUICK START</span><button id="close-help" class="icon-button" aria-label="关闭使用说明"><i data-lucide="x"></i></button></div>
+    <h2>让忍术，听从你的双手。</h2>
+    <p>点击底部「开启手势」，允许浏览器使用摄像头。镜像画面会铺满整个屏幕；让手掌完整出现在画面内，保持光线充足。</p>
+    <p>底部切换「千鸟 / 旋风手里剑」。握拳或双手靠拢保持片刻，再稳定展开即可爆发；也可以点击「爆发」。每次爆发间隔 1 秒，切换效果不会重置冷却或重新请求摄像头。</p>
+    <dl><dt>单手控制</dt><dd>握拳缩小能量核心，张开五指扩大当前效果。移动手掌，核心跟随掌心。</dd><dt>双手控制</dt><dd>双手靠拢收缩，逐渐拉开，效果扩张至整个画面。</dd><dt>鼠标 / 触屏</dt><dd>打开底部「设置」，选择「鼠标体验」。移动定位，按住蓄力、松开释放；也可按空格或滚轮调整。</dd><dt>声音与画面</dt><dd>底部按钮可静音。设置中可调节音量、效果范围，开启柔和模式或显示手部骨架。右上角进入全屏，Esc 退出。</dd></dl>
+    <p class="help-notice">包含动态雷电与亮度变化。对闪光敏感时请开启「柔和模式」或停止体验。视频不上传、不录制；点击「停止手势」或切换鼠标模式即可关闭摄像头。</p>
+    <button id="got-it" class="primary-button">明白了，开始结印 <i data-lucide="arrow-right"></i></button>
+  </dialog>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
